@@ -1,18 +1,8 @@
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
-const sendgridTransport = require("nodemailer-sendgrid-transport");
 const crypto = require("crypto");
 
 const User = require("../models/user");
-
-// const transporter = nodemailer.createTransport(
-//   sendgridTransport({
-//     auth: {
-//       api_key:
-//         "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",
-//     },
-//   })
-// );
 
 let transporter = nodemailer.createTransport({
   service: "gmail",
@@ -106,7 +96,7 @@ exports.postSignup = (req, res, next) => {
               from: "xianglau85@gmail.com",
               to: email,
               subject: "SignUp Sucessful Shopit",
-              html: '<img src="https://imgtr.ee/images/2023/06/21/mUBgM.md.jpg">',
+              html: '<img src="https://i.imgur.com/xe0n4zc.jpg">',
             })
             .then(res.redirect("/login"))
             .catch((err) => {
@@ -164,7 +154,7 @@ exports.postReset = (req, res, next) => {
             from: "xianglau85@gmail.com",
             to: email,
             subject: "Passowrd Reset Shopit",
-            html: `<p>Click here <a href="htpp://localhost:3000/reset/${token}">Link</a><p> to reset password</p>`,
+            html: `<img src="https://i.imgur.com/wk3cyU6.jpg"></br><p>Click here <a href="htpp://localhost:3000/reset/${token}">Link</a><p> to reset password</p>`,
           })
           .then(res.redirect("/login"));
       })
