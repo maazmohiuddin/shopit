@@ -1,9 +1,8 @@
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
-
+const { validationResult } = require("express-validator");
 const User = require("../models/user");
-const { reset } = require("nodemon");
 
 let transporter = nodemailer.createTransport({
   service: "gmail",
@@ -72,7 +71,18 @@ exports.postLogin = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+  const errors = validationResult(req);
   const confirmPassword = req.body.confirmPassword;
+
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.status(422).render("auth/signup", {
+      path: "/signup",
+      pageTitle: "Signup",
+      errorMessage: errors.array()[0].msg,
+    }); //validation failed = 422
+  }
+
   User.findOne({ email: email })
     .then((userDoc) => {
       if (userDoc) {
