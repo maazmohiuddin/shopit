@@ -34,6 +34,11 @@ exports.getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "Signup",
     errorMessage: message,
+    oldInput: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 };
 
@@ -72,7 +77,6 @@ exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const errors = validationResult(req);
-  const confirmPassword = req.body.confirmPassword;
 
   if (!errors.isEmpty()) {
     console.log(errors.array());
@@ -80,43 +84,37 @@ exports.postSignup = (req, res, next) => {
       path: "/signup",
       pageTitle: "Signup",
       errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+        confirmPassword: req.body.confirmPassword,
+      },
     }); //validation failed = 422
   }
 
-  User.findOne({ email: email })
-    .then((userDoc) => {
-      if (userDoc) {
-        req.flash("error", "Email Already Exsists.");
-        return res.redirect("/signup");
-      }
-      req.flash("error", "Sucessfully Signed Up.");
-      return bcrypt
-        .hash(password, 12)
-        .then((hashedPassword) => {
-          const user = new User({
-            email: email,
-            password: hashedPassword,
-            cart: { items: [] },
-          });
-          return user.save();
-        })
-        .then((result) => {
-          return transporter
-            .sendMail({
-              name: "ShopIt",
-              from: "xianglau85@gmail.com",
-              to: email,
-              subject: "SignUp Sucessful Shopit",
-              html: '<img src="https://i.imgur.com/xe0n4zc.jpg">',
-            })
-            .then(res.redirect("/login"))
-            .catch((err) => {
-              console.log(err);
-            });
-        });
+  bcrypt
+    .hash(password, 12)
+    .then((hashedPassword) => {
+      const user = new User({
+        email: email,
+        password: hashedPassword,
+        cart: { items: [] },
+      });
+      return user.save();
     })
-    .catch((err) => {
-      console.log(err);
+    .then((result) => {
+      return transporter
+        .sendMail({
+          name: "ShopIt",
+          from: "xianglau85@gmail.com",
+          to: email,
+          subject: "SignUp Sucessful Shopit",
+          html: '<img src="https://i.imgur.com/xe0n4zc.jpg">',
+        })
+        .then(res.redirect("/login"))
+        .catch((err) => {
+          console.log(err);
+        });
     });
 };
 
